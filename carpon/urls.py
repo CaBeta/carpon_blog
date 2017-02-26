@@ -16,14 +16,16 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from hello import views as hello_views
 
+from django.conf.urls.static import static
+
+
+
+
+
 urlpatterns = [
-    url(r'^$',hello_views.index,name='home'),
-    # url(r'^add/$',hello_views.add,name='add'),
-    # url(r'^add/(\d+)/(\d+)/$',hello_views.old_add2),
-    # url(r'^new_add/(\d+)/(\d+)/$',hello_views.add2,name='add2'),
+    url(r'^$',hello_views.home,name='home'),
     url(r'^admin/', include(admin.site.urls)),
-    # url(r'^test/$', hello_views.test),
+    url(r'^(?P<id>\d+)/$',hello_views.detail,name='detail'),
 
-
-    # url(r'^(?P<my_args>\d+)/$', hello_views.detail,name = 'detail'),
+     url(r'^tag(?P<tag>\w+)/$', 'hello.views.search_tag', name = 'search_tag'),
 ]

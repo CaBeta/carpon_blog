@@ -1,40 +1,39 @@
 #coding:utf-8
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import Http404
 from django.http import HttpResponse
-from django.core.urlresolvers import reverse
 
 from hello.models import Hello
-
 from datetime import datetime
-# Create your views here.
+
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+# 
 # def index(request):
-#     return HttpResponse(u"欢迎来到carpon的小站")
+#     post_list = Hello.objects.all()
+#     return render(request,'home.html',{'post_list':post_list})
 
-# def add(request):
-#     a = request.GET['a']
-#     b = request.GET['b']
-#     c = int(a)+int(b)
-#     return HttpResponse(str(c))
-#
-# def add2(request,a,b):
-#     c = int(a)+int(b)
-#     return HttpResponse(str(c))
+def detail(request, id):
+    try:
+        post = Hello.objects.get(id=str(id))
+    except Hello.DoesNotExist:
+        raise Http404
+    return render(request,'post.html',{'post':post})
 
-def index(request):
-    post_list = Hello.objects.all()
-    return render(request,'home.html',{'post_list':post_list})
-#
-# def old_add2(request,a,b):
-#     return HttpResponseRedirect(
-#         reverse('add2',args=(a,b))
-#     )
-#
-# def detail(request,my_args):
-#     post = Hello.objects.all()[int(my_args)]
-#     str = ("title = %s, category = %s, date_time = %s, content = %s"
-#         % (post.title, post.category , post.date_time , post.content))
-#     return HttpResponse(str)
-#
-# def test(request):
-#     return render(request, 'test.html', {'current_time':datetime.now()})
+def search_tag(request, tag) :
+    try:
+        post_list = Hello.objects.filter(category__iexact = tag) #contains
+    except Article.DoesNotExist :
+        raise Http404
+    return render(request, 'tag.html', {'post_list' : post_list})
+
+def home(request):
+    posts = Hello.objects.all()  #获取全部的Article对象
+    paginator = Paginator(posts, 2) #每页显示两个
+    page = request.GET.get('page')
+    try :
+        post_list = paginator.page(page)
+    except PageNotAnInteger :
+        post_list = paginator.page(1)
+    except EmptyPage :
+        post_list = paginator.paginator(paginator.num_pages)
+    return render(request, 'home.html', {'post_list' : post_list})
